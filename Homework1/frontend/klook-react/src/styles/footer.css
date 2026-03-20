@@ -1,0 +1,36 @@
+footer {
+    color: #757575;
+    background-color: #fff;
+    font-size: 14px;
+}
+
+.footer-divider {
+    opacity: .07;
+    background: #000;
+    height: 1px;
+}
+
+.footer-inner {
+    display: flex;
+    justify-content: space-between;
+    text-align: left;
+    padding: 24px 160px 20px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.footer-inner p {
+    opacity: 0.9;
+}
+
+.footer-social-media {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.footer-social-media img {
+    width: 20px;
+    height: 20px;
+}
