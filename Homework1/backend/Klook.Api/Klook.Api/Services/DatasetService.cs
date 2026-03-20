@@ -9,7 +9,7 @@ public class DatasetService
 
     public DatasetService(IWebHostEnvironment environment)
     {
-        _filePath = Path.Combine(environment.ContentRootPath, "Data", "dataset.json");
+        _filePath = Path.Combine(environment.ContentRootPath, "Data", "tours.json");
     }
 
     public async Task<List<DatasetItem>> GetAllAsync()
@@ -48,8 +48,14 @@ public class DatasetService
         if (item == null)
             return false;
 
+        item.Tab = updated.Tab;
+        item.Category = updated.Category;
+        item.Location = updated.Location;
         item.Title = updated.Title;
-        item.Description = updated.Description;
+        item.Badges = updated.Badges;
+        item.Rating = updated.Rating;
+        item.Price = updated.Price;
+        item.Image = updated.Image;
 
         await SaveAllAsync(items);
         return true;
@@ -70,6 +76,8 @@ public class DatasetService
 
     private async Task SaveAllAsync(List<DatasetItem> items)
     {
+        Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
+
         var json = JsonSerializer.Serialize(items, new JsonSerializerOptions
         {
             WriteIndented = true
