@@ -1,16 +1,16 @@
-using Microsoft.AspNetCore.Mvc;
 using Klook.Api.Models;
 using Klook.Api.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Klook.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class DatasetController : ControllerBase
+[Route("tours")]
+public class ToursController : ControllerBase
 {
     private readonly DatasetService _service;
 
-    public DatasetController(DatasetService service)
+    public ToursController(DatasetService service)
     {
         _service = service;
     }
@@ -18,7 +18,8 @@ public class DatasetController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<DatasetItem>>> GetAll()
     {
-        return Ok(await _service.GetAllAsync());
+        var tours = await _service.GetAllAsync();
+        return Ok(tours);
     }
 
     [HttpGet("{id:int}")]
@@ -32,32 +33,43 @@ public class DatasetController : ControllerBase
         return Ok(item);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<DatasetItem>> Create([FromBody] DatasetItem item)
+    [HttpGet("filters")]
+    public async Task<ActionResult<ToursFiltersResponse>> GetFilters()
     {
-        var created = await _service.AddAsync(item);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-    }
+        var tours = await _service.GetAllAsync();
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] DatasetItem item)
-    {
-        var ok = await _service.UpdateAsync(id, item);
+        var response = new ToursFiltersResponse
+        {
+            Tabs = tours
+                .Select(x => x.Tab)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList(),
 
-        if (!ok)
-            return NotFound();
+            Categories = tours
+                .Select(x => x.Category)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList(),
 
-        return NoContent();
-    }
+            Locations = tours
+                .Select(x => x.Location)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x!)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList(),
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var ok = await _service.DeleteAsync(id);
+            Badges = tours
+                .SelectMany(x => x.Badges.Primary.Concat(x.Badges.Promotional))
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList()
+        };
 
-        if (!ok)
-            return NotFound();
-
-        return NoContent();
+        return Ok(response);
     }
 }
